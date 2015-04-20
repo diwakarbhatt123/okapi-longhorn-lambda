@@ -1,0 +1,4 @@
+<longhorn-config>
+	<use-unique-working-directory>True</use-unique-working-directory>
+	<working-directory>testData/longhorn-files/</working-directory>
+</longhorn-config>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+        "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+    <context-param>
+        <param-name>resteasy.resources</param-name>
+        <param-value>net.sf.okapi.applications.longhorn.RESTInterface</param-value>
+    </context-param>
+
+    <listener>
+        <listener-class>
+            org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap
+        </listener-class>
+    </listener>
+
+    <servlet>
+        <servlet-name>Resteasy</servlet-name>
+        <servlet-class>
+            org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher
+        </servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>Resteasy</servlet-name>
+        <url-pattern>/projects/*</url-pattern>
+    </servlet-mapping>
+    
+    <welcome-file-list>
+    	<welcome-file>okapi-longhorn-sample-js-client.html</welcome-file>
+    </welcome-file-list>
+
+</web-app>

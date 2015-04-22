@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>net.sf.okapi.longhorn</groupId>
+  <artifactId>okapi-longhorn</artifactId>
+  <version>0.27</version>
+  
+  <packaging>pom</packaging>
+
+  <name>longhorn</name>
+  <url>http://maven.apache.org</url>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <org.jboss.resteasy.version>2.3.5.Final</org.jboss.resteasy.version>
+    <commons.lang.version>2.6</commons.lang.version>
+  </properties>
+  
+  <repositories>
+    <repository>
+      <id>okapi</id>
+      <name>okapi-repository</name>
+      <url>http://maven2.okapi.googlecode.com/git/</url>
+    </repository>
+    <repository>
+      <id>okapi-release</id>
+      <name>Okapi Release</name>
+      <url>http://repository-okapi.forge.cloudbees.com/release/</url>
+    </repository>
+    <!-- For resteasy -->
+    <repository>
+      <id>jboss-original</id>
+      <name>jboss repo</name>
+      <url>http://repository.jboss.org/nexus/content/groups/public/</url>
+    </repository>
+  </repositories> 
+
+  <modules>
+    <module>longhorn-api</module>
+    <module>longhorn-app</module>
+  </modules>
+  
+</project>

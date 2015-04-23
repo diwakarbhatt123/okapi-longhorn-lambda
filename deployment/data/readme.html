@@ -1,0 +1,70 @@
+<html>
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+    <title>Okapi Longhorn ReadMe</title>
+    <style type="text/css">body { font-family: Arial, Helvetica, sans-serif; }</style>
+  </head>
+  <body>
+    <h1>Release Notes - Longhorn @version@, @date@</h1>
+    <ul>
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#setup">Requirements and Installation</a></li>
+      <li><a href="#Support">Support</a></li>
+    </ul>
+    <hr>
+    <h2><a name="overview"></a>Overview</h2>
+    <p>Longhorn is a server application that allows you to run pipelines using
+      various pre-defined configurations.</p>
+    <p>This distribution contains:</p>
+    <ul>
+      <li>The Java .war file to instal on your application server, including a
+        simple Web client.</li>
+      <li>A .jar file with a client library for Java programs.</li>
+    </ul>
+    <p>The source code for this package is hosted in the
+      <a href="http://code.google.com/p/okapi/source/browse/">Okapi Framework
+        project</a>.</p>
+    <p>See the <a href="http://www.opentag.com/okapi/wiki/index.php?title=Longhorn">
+        Longhorn wiki page</a> for more information.</p>
+    <hr>
+    <h2><a name="setup"></a>Requirements and Installation</h2>
+    <h3>Requirements</h3>
+    <ul>
+      <li>Java Application Server with Java 1.7 or later</li>
+    </ul>
+    <h3>Installation</h3>
+    <p>To install Longhorn:</p>
+    <ol>
+      <li>Deploy <code>okapi-longhorn.war</code> on your application server</li>
+      <li>Set up a working directory. Create <code>${user.dir}/okapi-longhorn-configuration.xml</code>
+        pointing to the directory where temporary data can be stored:
+        <pre>&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;okapi-longhorn-configuration version="1"&gt;
+	&lt;working-directory&gt;/etc/okapi/longhorn/workspace&lt;/working-directory&gt;
+&lt;/okapi-longhorn-configuration&gt;
+		</pre>
+      </li>
+      <li>Test if the HTML client is available: <a target="_blank" href="http://localhost/okapi-longhorn/okapi-longhorn-sample-js-client.html">
+          http://localhost/okapi-longhorn/okapi-longhorn-sample-js-client.html</a>
+        (you may have to add the port or change the hostname)</li>
+    </ol>
+    <h3>Uninstallation</h3>
+    <p>To un-install Longhorn:</p>
+    <ol>
+      <li>Un-deploy <code>okapi-longhorn.war</code></li>
+      <li>Delete the working directory</li>
+    </ol>
+    <hr>
+    <h2><a name="Support"></a>Support</h2>
+    <p>If you have questions, suggestions or bugs to report, you can do this
+      different ways:</p>
+    <ul>
+      <li>Read and post notes in the <a target="_blank" href="http://tech.groups.yahoo.com/group/okapitools/">Okapi
+          Tools users group</a> (you need to be registered member to post, but
+        not to read).</li>
+      <li>Read an post issue reports on the <a href="http://code.google.com/p/okapi/issues/list">Google
+          Code project site</a>.</li>
+    </ul>
+    <p>&nbsp;</p>
+  </body>
+</html>

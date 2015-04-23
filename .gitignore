@@ -5,3 +5,5 @@ target
 .settings
 
 META-INF
+deployment/dist_longhorn
+deployment/done

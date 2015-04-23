@@ -1,0 +1,46 @@
+<?xml version="1.0"?> 
+<project name="okapi-longhorn" default="all" basedir="."> 
+
+	<!-- Get the version information to use from file -->
+	<property file="release.properties" />
+	<property name="okapilibStamp" value="${okapilibVersion}${releaseInfo}" />
+
+	<property name="done" value="done"/>
+	<property name="dist_longhorn" value="dist_longhorn"/>
+	<property name="base_name" value="longhorn"/>
+	<property name="distName" value="${base_name}-${okapilibStamp}"/>
+	<property name="zipName" value="okapi-longhorn_all-platforms_${okapilibStamp}"/>
+
+	<tstamp>
+	 <format property="TODAY" pattern="MMM-dd-yyyy"/>
+	</tstamp>
+
+	<!-- Initialization -->
+	<target name="init">
+		<delete includeEmptyDirs="true" failonerror="false">
+			<fileset dir="${dist_longhorn}"/>
+		</delete>
+		<mkdir dir="${dist_longhorn}"/>
+	</target>
+	
+    <target name="clean">
+        <delete includeEmptyDirs="true" failonerror="false">
+            <fileset dir="${dist_longhorn}"/>
+            <fileset dir="${done}"/>
+        </delete>
+    </target>
+
+	<!-- Make the zip file -->
+	<target name="makeZip"> 
+		<copy tofile="${dist_longhorn}/okapi-longhorn.war" file="../longhorn-app/target/okapi-longhorn.war"/>
+		<copy tofile="${dist_longhorn}/okapi-longhorn-api.jar" file="../longhorn-api/target/okapi-lib-longhorn-api-${okapilibStamp}.jar"/>
+		<copy tofile="${dist_longhorn}/readme.html" file="data/readme.html"/>
+		<replace file="${dist_longhorn}/readme.html" token="@version@" value="${okapilibStamp}"/>
+		<replace file="${dist_longhorn}/readme.html" token="@date@" value="${TODAY}"/>
+
+		<zip destfile="${done}/${zipName}.zip" basedir="${dist_longhorn}"/>
+	</target>
+	
+	<target name="all" depends="init, makeZip"/>
+
+</project>

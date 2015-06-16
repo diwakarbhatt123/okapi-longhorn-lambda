@@ -6,7 +6,7 @@ Bug report and enhancement requests: https://bitbucket.org/okapiframework/longho
 
 #### Downloads: ####
 
- * The latest stable version of Okapi Longhorn is at https://bintray.com/okapi/Distribution/Longhorn
+The latest stable version of Okapi Longhorn is at https://bintray.com/okapi/Distribution/Longhorn
 
 #### Developing with the API ####
 

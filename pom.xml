@@ -4,7 +4,7 @@
 
   <groupId>net.sf.okapi.longhorn</groupId>
   <artifactId>okapi-longhorn</artifactId>
-  <version>0.27</version>
+  <version>0.28-SNAPSHOT</version>
   
   <packaging>pom</packaging>
 
@@ -21,7 +21,7 @@
     <repository>
       <id>okapi</id>
       <name>okapi-repository</name>
-      <url>http://maven2.okapi.googlecode.com/git/</url>
+      <url>https://bitbucket.org/okapiframework/maven-repo/raw/master/</url>
     </repository>
     <repository>
       <id>okapi-release</id>

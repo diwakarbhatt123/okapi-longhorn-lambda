@@ -12,6 +12,7 @@
   <name>Okapi Longhorn</name>
   <properties>
     <longhorn.war.name>okapi-longhorn</longhorn.war.name>
+    <jetty.maven.plugin.version>8.1.16.v20140903</jetty.maven.plugin.version>
   </properties>
   <dependencies>
     <dependency>
@@ -126,14 +127,17 @@
       </plugin>
       <plugin>
         <groupId>org.mortbay.jetty</groupId>
-        <artifactId>maven-jetty-plugin</artifactId>
+        <artifactId>jetty-maven-plugin</artifactId>
+        <version>${jetty.maven.plugin.version}</version>
         <configuration>
-          <contextPath>/okapi-longhorn</contextPath>
+          <webApp>
+            <contextPath>/okapi-longhorn</contextPath>
+          </webApp>
           <scanIntervalSeconds>2</scanIntervalSeconds>
           <stopKey>foo</stopKey>
           <stopPort>9999</stopPort>
           <connectors>
-            <connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
+            <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
               <port>9095</port>
               <maxIdleTime>60000</maxIdleTime>
             </connector>

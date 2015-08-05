@@ -6,5 +6,27 @@ Bug report and enhancement requests: https://bitbucket.org/okapiframework/longho
 
 #### Downloads: ####
 
- * The latest stable version of Okapi Longhorn is at https://bintray.com/okapi/Distribution/Longhorn
- * The latest development snapshot is at http://okapi.opentag.com/snapshots
+The latest stable version of Okapi Longhorn is at https://bintray.com/okapi/Distribution/Longhorn
+
+#### Developing with the API ####
+
+Java bindings for the Longhorn REST API are available as a maven artifact.  Add this repository and dependency and to your pom.xml:
+
+```
+#!xml
+  <repositories>
+    <repository>
+        <id>okapi-longhorn-release</id>
+        <name>Okapi Longhorn Release</name>
+        <url>http://repository-opentag.forge.cloudbees.com/release/</url>
+    </repository>
+  </repositories>
+  <!-- .... -->
+  <dependencies>
+    <dependency>
+      <groupId>net.sf.okapi.lib</groupId>
+      <artifactId>okapi-lib-longhorn-api</artifactId>
+      <version>0.27</version>
+    </dependency>
+  </dependencies>
+```

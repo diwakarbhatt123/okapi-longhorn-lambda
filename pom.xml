@@ -28,6 +28,11 @@
       <name>Okapi Release</name>
       <url>http://repository-okapi.forge.cloudbees.com/release/</url>
     </repository>
+    <repository>
+      <id>okapi-snapshot</id>
+      <name>Okapi Snapshot</name>
+      <url>http://repository-okapi.forge.cloudbees.com/snapshot/</url>
+    </repository>
     <!-- For resteasy -->
     <repository>
       <id>jboss-original</id>

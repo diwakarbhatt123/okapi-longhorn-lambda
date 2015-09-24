@@ -30,3 +30,23 @@ Java bindings for the Longhorn REST API are available as a maven artifact.  Add 
     </dependency>
   </dependencies>
 ```
+
+To develop with the latest nightly snapshot build, use this instead:
+```
+#!xml
+  <repositories>
+    <repository>
+        <id>okapi-longhorn-release</id>
+        <name>Okapi Longhorn Release</name>
+        <url>http://repository-opentag.forge.cloudbees.com/snapshot/</url>
+    </repository>
+  </repositories>
+  <!-- .... -->
+  <dependencies>
+    <dependency>
+      <groupId>net.sf.okapi.lib</groupId>
+      <artifactId>okapi-lib-longhorn-api</artifactId>
+      <version>0.29-SNAPSHOT</version>
+    </dependency>
+  </dependencies>
+```

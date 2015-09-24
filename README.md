@@ -36,8 +36,8 @@ To develop with the latest nightly snapshot build, use this instead:
 #!xml
   <repositories>
     <repository>
-        <id>okapi-longhorn-release</id>
-        <name>Okapi Longhorn Release</name>
+        <id>okapi-longhorn-snapshot</id>
+        <name>Okapi Longhorn Snapshot</name>
         <url>http://repository-opentag.forge.cloudbees.com/snapshot/</url>
     </repository>
   </repositories>

@@ -26,7 +26,7 @@ Java bindings for the Longhorn REST API are available as a maven artifact.  Add 
     <dependency>
       <groupId>net.sf.okapi.lib</groupId>
       <artifactId>okapi-lib-longhorn-api</artifactId>
-      <version>0.28</version>
+      <version>0.29</version>
     </dependency>
   </dependencies>
 ```
@@ -46,7 +46,7 @@ To develop with the latest nightly snapshot build, use this instead:
     <dependency>
       <groupId>net.sf.okapi.lib</groupId>
       <artifactId>okapi-lib-longhorn-api</artifactId>
-      <version>0.29-SNAPSHOT</version>
+      <version>0.30-SNAPSHOT</version>
     </dependency>
   </dependencies>
 ```

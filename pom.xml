@@ -4,7 +4,7 @@
 
   <groupId>net.sf.okapi.longhorn</groupId>
   <artifactId>okapi-longhorn</artifactId>
-  <version>0.28</version>
+  <version>0.29</version>
   
   <packaging>pom</packaging>
 
@@ -27,6 +27,11 @@
       <id>okapi-release</id>
       <name>Okapi Release</name>
       <url>http://repository-okapi.forge.cloudbees.com/release/</url>
+    </repository>
+    <repository>
+      <id>okapi-snapshot</id>
+      <name>Okapi Snapshot</name>
+      <url>http://repository-okapi.forge.cloudbees.com/snapshot/</url>
     </repository>
     <!-- For resteasy -->
     <repository>

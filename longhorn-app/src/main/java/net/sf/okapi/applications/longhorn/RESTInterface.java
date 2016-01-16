@@ -51,6 +51,8 @@ import net.sf.okapi.lib.longhornapi.impl.rest.transport.XMLStringList;
 
 import org.apache.commons.httpclient.HttpStatus;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Handles Web-Service requests and delegates them to Rainbow/Okapi.
@@ -77,7 +79,8 @@ import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
  */
 @Path("/projects")
 public class RESTInterface {
-	
+	private static final Logger LOG = LoggerFactory.getLogger(RESTInterface.class);
+
 	//TODO DEL for input file
 	//TODO DEL for output file
 	//TODO DEL /projects/outputFiles to clear output directory
@@ -91,10 +94,10 @@ public class RESTInterface {
 	@POST
 	@Path("/new")
 	public Response createProject(@Context UriInfo uriInfo) {
-		
 		int projId = ProjectUtils.createNewProject();
 		
 		URI projectUri = uriInfo.getAbsolutePath().resolve(projId + "");
+		LOG.info("Created project " + projId + " with URI " + projectUri);
 		return Response.created(projectUri).build();
 	}
 
@@ -119,7 +122,7 @@ public class RESTInterface {
 	@DELETE
 	@Path("/{projId}")
 	public Response deleteProject(@PathParam("projId") int projId) {
-		
+		LOG.info("Deleting project " + projId);
 		Util.deleteDirectory(WorkspaceUtils.getProjectPath(projId), false);
 
 		int status = HttpStatus.SC_OK;
@@ -142,6 +145,7 @@ public class RESTInterface {
 		try {
 			File tmpFile = input.getFormDataPart(WorkspaceUtils.BATCH_CONF_PARAM, File.class, null);
 			ProjectUtils.addBatchConfig(projId, tmpFile);
+			LOG.info("Adding batch config to project " + projId);
 			tmpFile.delete();
 		}
 		catch (IOException e) {
@@ -171,6 +175,7 @@ public class RESTInterface {
 		try {
 			File tmpFile = input.getFormDataPart(WorkspaceUtils.INPUT_FILE_PARAM, File.class, null);
 			ProjectUtils.addInputFile(projId, tmpFile, filename);
+			LOG.info("Added input file " + filename + " to project " + projId);
 			tmpFile.delete();
 		}
 		catch (IOException e) {
@@ -190,8 +195,9 @@ public class RESTInterface {
 	@Path("/{projId}/inputFiles")
 	@Produces(MediaType.TEXT_XML)
 	public XMLStringList getProjectInputFiles(@PathParam("projId") int projId) {
-		
+		LOG.info("Getting project input files for project " + projId);
 		ArrayList<String> inputFiles = WorkspaceUtils.getInputFileNames(projId);
+		logProjectFiles(projId, inputFiles, "Input");
 		return new XMLStringList(inputFiles);
 	}
 
@@ -207,7 +213,7 @@ public class RESTInterface {
 	@Produces(MediaType.WILDCARD)
 	public File getProjectInputFile(
 			@PathParam("projId") int projId, @PathParam("filename") String filename) {
-		
+		LOG.info("Getting project input file " + filename + " for project " + projId);
 		return WorkspaceUtils.getInputFile(projId, filename);
 	}
 
@@ -222,6 +228,7 @@ public class RESTInterface {
 	public Response executeProject(@PathParam("projId") int projId) {
 
 		try {
+			LOG.info("Executing project " + projId);
 			ProjectUtils.executeProject(projId);
 		}
 		catch (Exception e) {
@@ -249,6 +256,8 @@ public class RESTInterface {
 	public Response executeProject(@PathParam("projId") int projId, @PathParam("source") String sourceLanguage, @PathParam("target") String targetLanguage) {
 
 		try {
+			LOG.info("Executing project " + projId + " with sourceLanguage " + sourceLanguage +
+					 " and targetLanguage " + targetLanguage);
 			ProjectUtils.executeProject(projId, sourceLanguage, targetLanguage, null);
 		}
 		catch (Exception e) {
@@ -271,8 +280,9 @@ public class RESTInterface {
 	@Path("/{projId}/outputFiles")
 	@Produces(MediaType.TEXT_XML)
 	public XMLStringList getProjectOutputFiles(@PathParam("projId") int projId) {
-		
+		LOG.info("Getting project output files for project " + projId);
 		ArrayList<String> outputFiles = WorkspaceUtils.getOutputFileNames(projId);
+		logProjectFiles(projId, outputFiles, "Output");
 		return new XMLStringList(outputFiles);
 	}
 
@@ -288,7 +298,7 @@ public class RESTInterface {
 	@Produces(MediaType.WILDCARD)
 	public File getProjectOutputFile(
 			@PathParam("projId") int projId, @PathParam("filename") String filename) {
-		
+		LOG.info("Getting file " + filename + " for project " + projId);
 		return WorkspaceUtils.getOutputFile(projId, filename);
 	}
 
@@ -297,6 +307,7 @@ public class RESTInterface {
 	public Response addProjectInputFilesFromArchive(@PathParam("projId") int projId, MultipartFormDataInput input) {
 		
 		try {
+			LOG.info("Adding project files from zip to project " + projId);
 			File tmpFile = input.getFormDataPart(WorkspaceUtils.INPUT_FILE_PARAM, File.class, null);
 			ProjectUtils.addInputFilesFromArchive(projId, tmpFile);
 			tmpFile.delete();
@@ -317,6 +328,7 @@ public class RESTInterface {
 			@PathParam("projId") int projId) throws IOException {
 		
 		//TODO how to do exception handling?
+		LOG.info("Fetching output files as archive for project " + projId);
 		return WorkspaceUtils.getOutputFilesAsArchive(projId);
 	}
 
@@ -333,6 +345,7 @@ public class RESTInterface {
 	public File getProjectOutputFileAsZip(
 			@PathParam("projId") int projId, @PathParam("filename") String filename) throws IOException {
 
+		LOG.info("Fetching output file " + filename + " for project " + projId);
 		final File desiredFile = WorkspaceUtils.getOutputFile(projId, filename);
 
 		File tempZip = File.createTempFile("~okapi-4_", ".zip");
@@ -377,5 +390,11 @@ public class RESTInterface {
 		final StringWriter writer = new StringWriter();
 		e.printStackTrace(new PrintWriter(writer));
 		return writer.toString();
+	}
+
+	private void logProjectFiles(int projId, List<String> files, String type) {
+		if (LOG.isDebugEnabled()) {
+			LOG.debug(type + " files for project " + projId + ": " + files);
+		}
 	}
 }

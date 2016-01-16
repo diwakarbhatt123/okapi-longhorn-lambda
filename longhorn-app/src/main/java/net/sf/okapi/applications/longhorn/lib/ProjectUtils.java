@@ -49,6 +49,7 @@ import net.sf.okapi.steps.rainbowkit.creation.Parameters;
 import net.sf.okapi.steps.rainbowkit.postprocess.MergingStep;
 
 public class ProjectUtils {
+	private static final Logger LOG = LoggerFactory.getLogger(ProjectUtils.class);
 	private static final String CURRENT_PROJECT_PIPELINE = "currentProjectPipeline";
 
 	public static synchronized int createNewProject() {
@@ -57,15 +58,14 @@ public class ProjectUtils {
 		
 		File workingDir = new File(WorkspaceUtils.getWorkingDirectory());
 		if (!workingDir.exists()) {
-			Logger localLogger = LoggerFactory.getLogger(ProjectUtils.class);
-			localLogger.info("The working directory " + workingDir.getAbsolutePath() + " doesn't exist. " +
+			LOG.info("The working directory " + workingDir.getAbsolutePath() + " doesn't exist. " +
 					"It will be created.");
 		}
 		
 		Util.createDirectories(WorkspaceUtils.getInputDirPath(projId) + File.separator);
 		Util.createDirectories(WorkspaceUtils.getConfigDirPath(projId) + File.separator);
 		Util.createDirectories(WorkspaceUtils.getOutputDirPath(projId) + File.separator);
-		
+		LOG.info("Created new project " + projId);
 		return projId;
 	}
 
@@ -154,7 +154,9 @@ public class ProjectUtils {
 			// Load pipeline from file
 			File pipelineFile = WorkspaceUtils.getPipelineFile(projId);
 			pipelineWrapper.load(pipelineFile.getAbsolutePath());
-			
+
+			logPipelineWrapper(projId, pipelineWrapper);
+
 			Project rainbowProject = prepareRainbowProject(projId, sourceLanguage, targetLanguage, pipelineWrapper);
 			
 			// Adjust paths from specific steps
@@ -178,6 +180,20 @@ public class ProjectUtils {
 		}
 		finally {
 			plManager.releaseClassLoader();
+		}
+	}
+
+	private static void logPipelineWrapper(int projId, PipelineWrapper pipelineWrapper) {
+		if (LOG.isInfoEnabled()) {
+			StringBuilder sb = new StringBuilder();
+			sb.append("Executing pipeline for project " + projId + ":");
+			for (StepInfo stepInfo : pipelineWrapper.getSteps()) {
+				sb.append("\n- " + stepInfo.name + " (" + stepInfo.stepClass + ")");
+				if (LOG.isDebugEnabled()) {
+					sb.append("\n  - Params: " + stepInfo.paramsData);
+				}
+			}
+			LOG.info(sb.toString());
 		}
 	}
 
@@ -260,7 +276,9 @@ public class ProjectUtils {
 
 			int status = rainbowProject.addDocument(
 					0, inputFile.getAbsolutePath(), null, null, filterConfigurationId, false);
-			
+
+			LOG.info("Project " + projId + " adding file " + inputFile.getAbsolutePath() +
+					 " with filterConfig " + filterConfigurationId);
 			if (status == 1)
 				throw new RuntimeException("Adding document " + inputFile.getName() + " to list of input files failed");
 		}
@@ -288,7 +306,10 @@ public class ProjectUtils {
 
 				int status = rainbowProject.addDocument(
 						0, inputFile.getAbsolutePath(), null, null, filterConfigurationId, false);
-				
+
+				LOG.info("Project " + projId + " adding file " + inputFile.getAbsolutePath() +
+						 " with filterConfig " + filterConfigurationId);
+
 				if (status == 1)
 					throw new RuntimeException("Adding document " + inputFile.getName() + " to list of input files failed");
 				

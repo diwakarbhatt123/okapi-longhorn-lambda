@@ -26,7 +26,7 @@ Java bindings for the Longhorn REST API are available as a maven artifact.  Add 
     <dependency>
       <groupId>net.sf.okapi.lib</groupId>
       <artifactId>okapi-lib-longhorn-api</artifactId>
-      <version>0.29</version>
+      <version>0.30</version>
     </dependency>
   </dependencies>
 ```

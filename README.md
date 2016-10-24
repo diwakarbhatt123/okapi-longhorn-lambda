@@ -1,6 +1,6 @@
 The **Okapi Longhorn** project allows you to execute batch configurations remotely.
 
-For more information about Okapi Longhorn, see the [corresponding page on the main wiki](http://www.opentag.com/okapi/wiki/index.php?title=Longhorn).
+For more information about Okapi Longhorn, see the [corresponding page on the main wiki](http://okapiframework.org/wiki/index.php?title=Longhorn).
 
 Bug report and enhancement requests: https://bitbucket.org/okapiframework/longhorn/issues
 

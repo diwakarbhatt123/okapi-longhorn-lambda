@@ -106,8 +106,8 @@
         </configuration>
       </plugin>
       <plugin>
-        <!-- Use the following dependency in referencing projects: <dependency> 
-             <groupId>net.sf.okapi.applications</groupId> <artifactId>okapi-application-longhorn</artifactId> 
+        <!-- Use the following dependency in referencing projects: <dependency>
+             <groupId>net.sf.okapi.applications</groupId> <artifactId>okapi-application-longhorn</artifactId>
              <version>${project.version}</version> <classifier>classes</classifier> </dependency> -->
         <artifactId>maven-war-plugin</artifactId>
         <configuration>
@@ -188,6 +188,26 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>com.spotify</groupId>
+        <artifactId>docker-maven-plugin</artifactId>
+        <version>0.4.3</version>
+        <configuration>
+          <imageName>${docker.registry.name}okapi-longhorn</imageName>
+          <dockerDirectory>src/main/docker</dockerDirectory>
+          <forceTags>true</forceTags>
+          <resources>
+            <resource>
+              <targetPath>/</targetPath>
+              <directory>${project.build.directory}</directory>
+              <include>${project.build.finalName}.war</include>
+            </resource>
+          </resources>
+          <imageTags>
+              <imageTag>${project.version}</imageTag>
+          </imageTags>
+        </configuration>
       </plugin>
     </plugins>
   </build>

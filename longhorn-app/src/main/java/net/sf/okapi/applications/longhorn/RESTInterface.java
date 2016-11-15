@@ -94,7 +94,7 @@ public class RESTInterface {
 	@POST
 	@Path("/new")
 	public Response createProject(@Context UriInfo uriInfo) {
-		int projId = ProjectUtils.createNewProject();
+		String projId = ProjectUtils.createNewProject();
 		
 		URI projectUri = uriInfo.getAbsolutePath().resolve(projId + "");
 		LOG.info("Created project " + projId + " with URI " + projectUri);
@@ -109,7 +109,7 @@ public class RESTInterface {
 	@Produces(MediaType.TEXT_XML)
 	public XMLStringList getProjects() {
 		
-		ArrayList<Integer> projIds = WorkspaceUtils.getProjectIds();
+		ArrayList<String> projIds = WorkspaceUtils.getProjectIds();
 		return new XMLStringList(projIds);
 	}
 
@@ -121,7 +121,7 @@ public class RESTInterface {
 	 */
 	@DELETE
 	@Path("/{projId}")
-	public Response deleteProject(@PathParam("projId") int projId) {
+	public Response deleteProject(@PathParam("projId") String projId) {
 		LOG.info("Deleting project " + projId);
 		Util.deleteDirectory(WorkspaceUtils.getProjectPath(projId), false);
 
@@ -140,7 +140,7 @@ public class RESTInterface {
 	@POST
 	@Path("/{projId}/batchConfiguration")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	public Response addBatchConfigurationFile(@PathParam("projId") int projId, MultipartFormDataInput input) {
+	public Response addBatchConfigurationFile(@PathParam("projId") String projId, MultipartFormDataInput input) {
 
 		try {
 			File tmpFile = input.getFormDataPart(WorkspaceUtils.BATCH_CONF_PARAM, File.class, null);
@@ -169,7 +169,7 @@ public class RESTInterface {
 	@PUT
 	@POST
 	@Path("/{projId}/inputFiles/{filename:.+}")
-	public Response addProjectInputFile(@PathParam("projId") int projId, @PathParam("filename") String filename,
+	public Response addProjectInputFile(@PathParam("projId") String projId, @PathParam("filename") String filename,
 			MultipartFormDataInput input) {
 		
 		try {
@@ -194,7 +194,7 @@ public class RESTInterface {
 	@GET
 	@Path("/{projId}/inputFiles")
 	@Produces(MediaType.TEXT_XML)
-	public XMLStringList getProjectInputFiles(@PathParam("projId") int projId) {
+	public XMLStringList getProjectInputFiles(@PathParam("projId") String projId) {
 		LOG.info("Getting project input files for project " + projId);
 		ArrayList<String> inputFiles = WorkspaceUtils.getInputFileNames(projId);
 		logProjectFiles(projId, inputFiles, "Input");
@@ -212,7 +212,7 @@ public class RESTInterface {
 	@Path("/{projId}/inputFiles/{filename:.+}")
 	@Produces(MediaType.WILDCARD)
 	public File getProjectInputFile(
-			@PathParam("projId") int projId, @PathParam("filename") String filename) {
+			@PathParam("projId") String projId, @PathParam("filename") String filename) {
 		LOG.info("Getting project input file " + filename + " for project " + projId);
 		return WorkspaceUtils.getInputFile(projId, filename);
 	}
@@ -225,7 +225,7 @@ public class RESTInterface {
 	 */
 	@POST
 	@Path("/{projId}/tasks/execute")
-	public Response executeProject(@PathParam("projId") int projId) {
+	public Response executeProject(@PathParam("projId") String projId) {
 
 		try {
 			LOG.info("Executing project " + projId);
@@ -253,7 +253,7 @@ public class RESTInterface {
 	 */
 	@POST
 	@Path("/{projId}/tasks/execute/{source}/{target}")
-	public Response executeProject(@PathParam("projId") int projId, @PathParam("source") String sourceLanguage, @PathParam("target") String targetLanguage) {
+	public Response executeProject(@PathParam("projId") String projId, @PathParam("source") String sourceLanguage, @PathParam("target") String targetLanguage) {
 
 		try {
 			LOG.info("Executing project " + projId + " with sourceLanguage " + sourceLanguage +
@@ -279,7 +279,7 @@ public class RESTInterface {
 	@GET
 	@Path("/{projId}/outputFiles")
 	@Produces(MediaType.TEXT_XML)
-	public XMLStringList getProjectOutputFiles(@PathParam("projId") int projId) {
+	public XMLStringList getProjectOutputFiles(@PathParam("projId") String projId) {
 		LOG.info("Getting project output files for project " + projId);
 		ArrayList<String> outputFiles = WorkspaceUtils.getOutputFileNames(projId);
 		logProjectFiles(projId, outputFiles, "Output");
@@ -297,14 +297,14 @@ public class RESTInterface {
 	@Path("/{projId}/outputFiles/{filename:.+}")
 	@Produces(MediaType.WILDCARD)
 	public File getProjectOutputFile(
-			@PathParam("projId") int projId, @PathParam("filename") String filename) {
+			@PathParam("projId") String projId, @PathParam("filename") String filename) {
 		LOG.info("Getting file " + filename + " for project " + projId);
 		return WorkspaceUtils.getOutputFile(projId, filename);
 	}
 
 	@POST
 	@Path("/{projId}/inputFiles.zip")
-	public Response addProjectInputFilesFromArchive(@PathParam("projId") int projId, MultipartFormDataInput input) {
+	public Response addProjectInputFilesFromArchive(@PathParam("projId") String projId, MultipartFormDataInput input) {
 		
 		try {
 			LOG.info("Adding project files from zip to project " + projId);
@@ -325,7 +325,7 @@ public class RESTInterface {
 	@Path("/{projId}/outputFiles.zip")
 	@Produces(MediaType.WILDCARD)
 	public File getProjectOutputFilesAsArchive(
-			@PathParam("projId") int projId) throws IOException {
+			@PathParam("projId") String projId) throws IOException {
 		
 		//TODO how to do exception handling?
 		LOG.info("Fetching output files as archive for project " + projId);
@@ -343,7 +343,7 @@ public class RESTInterface {
 	@Path("/{projId}/outputFile.zip/{filename:.+}.zip")
 	@Produces("application/zip")
 	public File getProjectOutputFileAsZip(
-			@PathParam("projId") int projId, @PathParam("filename") String filename) throws IOException {
+			@PathParam("projId") String projId, @PathParam("filename") String filename) throws IOException {
 
 		LOG.info("Fetching output file " + filename + " for project " + projId);
 		final File desiredFile = WorkspaceUtils.getOutputFile(projId, filename);
@@ -367,7 +367,7 @@ public class RESTInterface {
 	@POST
 	@Path("/{projId}/tasks/execute/{sourceLanguage}")
 	public Response executeProject(
-			@PathParam("projId") final int projId,
+			@PathParam("projId") final String projId,
 			@PathParam("sourceLanguage") final String sourceLanguage,
 			@QueryParam("targets") final List<String> targetLanguages) {
 
@@ -392,7 +392,7 @@ public class RESTInterface {
 		return writer.toString();
 	}
 
-	private void logProjectFiles(int projId, List<String> files, String type) {
+	private void logProjectFiles(String projId, List<String> files, String type) {
 		if (LOG.isDebugEnabled()) {
 			LOG.debug(type + " files for project " + projId + ": " + files);
 		}

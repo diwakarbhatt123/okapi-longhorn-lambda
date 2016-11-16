@@ -24,6 +24,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -66,6 +68,47 @@ public class ProjectUtils {
 					"It will be created.");
 		}
 		
+		String projId = generateNewProjectId();
+		
+		Util.createDirectories(WorkspaceUtils.getInputDirPath(projId) + File.separator);
+		Util.createDirectories(WorkspaceUtils.getConfigDirPath(projId) + File.separator);
+		Util.createDirectories(WorkspaceUtils.getOutputDirPath(projId) + File.separator);
+		LOG.info("Created new project " + projId);
+		return projId;
+	}
+
+	private static String generateNewProjectId() {
+		ProjectIdStrategy strategy = WorkspaceUtils.loadConfig().getProjectIdStrategy();
+		switch(strategy) {
+		case UUID: return generateNewProjectId_UUID(); 
+		case Counter: return generateNewProjectId_Counter();
+		default:
+			throw new IllegalArgumentException("Unknown Project Id Strategy:"+strategy);
+		}
+	}
+
+	private static String generateNewProjectId_Counter() {
+		ArrayList<String> projectIds = WorkspaceUtils.getProjectIds();
+		
+		ArrayList<Integer> takenProjectIds = new ArrayList<Integer>();
+		for(String id : projectIds) {
+			try {
+				takenProjectIds.add(Integer.parseInt(id));
+			} catch (NumberFormatException e) {
+				//ignore ids that are not numbers
+			}
+		}
+
+		if (takenProjectIds.isEmpty())
+			return "1";
+
+		Collections.sort(takenProjectIds);
+		// List is in numerical order, so we can simply increase the last value by 1
+		Integer highestId = takenProjectIds.get(takenProjectIds.size() - 1);
+		return Integer.toString(highestId + 1);
+	}
+
+	private static String generateNewProjectId_UUID() {
 		String projId = null;
 		int numAttempts = 0;
 		File projectPath = null;
@@ -83,11 +126,6 @@ public class ProjectUtils {
 		if(projectPath.exists()) {
 			throw new IllegalStateException("Could not create new project, no unique name after "+numAttempts+" attempts.");
 		}
-		
-		Util.createDirectories(WorkspaceUtils.getInputDirPath(projId) + File.separator);
-		Util.createDirectories(WorkspaceUtils.getConfigDirPath(projId) + File.separator);
-		Util.createDirectories(WorkspaceUtils.getOutputDirPath(projId) + File.separator);
-		LOG.info("Created new project " + projId);
 		return projId;
 	}
 

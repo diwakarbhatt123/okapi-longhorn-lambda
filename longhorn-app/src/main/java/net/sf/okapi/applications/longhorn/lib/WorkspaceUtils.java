@@ -96,7 +96,7 @@ public final class WorkspaceUtils {
 	 * @return The user's configuration (if <code>System.getProperty("user.home") + "/okapi-longhorn-configuration.xml"</code>
 	 * 		was found) or the default configuration
 	 */
-	private static Configuration loadConfig() {
+	public static Configuration loadConfig() {
 		
 		Configuration config = null;
 

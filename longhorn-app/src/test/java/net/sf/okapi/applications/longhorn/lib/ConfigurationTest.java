@@ -43,7 +43,7 @@ public class ConfigurationTest {
 		String workingDir = conf.getWorkingDirectory();
 		Assert.assertFalse(workingDir.contains("M0."));
 		//test default project id strategy
-		Assert.assertEquals(ProjectIdStrategy.UUID, conf.getProjectIdStrategy());
+		Assert.assertEquals(ProjectIdStrategy.Counter, conf.getProjectIdStrategy());
 	}
 
 	@Test

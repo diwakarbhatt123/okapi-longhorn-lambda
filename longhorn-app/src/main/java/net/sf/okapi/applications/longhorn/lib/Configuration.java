@@ -50,7 +50,7 @@ public class Configuration {
 	private static final String PROJECT_ID_STRATEGY = "project-id-strategy";
 	private String versionPropertyFileName = "/version.properties";
 	private String workingDirectory;
-	private ProjectIdStrategy projIdStrategy = ProjectIdStrategy.UUID;
+	private ProjectIdStrategy projIdStrategy = ProjectIdStrategy.Counter;
 
 	public Configuration() {
 		LOGGER.info("The default working directory for Okapi Longhorn will be used, " +
@@ -165,7 +165,7 @@ public class Configuration {
 				throw e;
 			}
 		} 
-		return ProjectIdStrategy.UUID;
+		return ProjectIdStrategy.Counter;
 	}
 
 

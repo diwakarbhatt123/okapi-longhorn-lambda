@@ -57,8 +57,6 @@ import net.sf.okapi.steps.rainbowkit.postprocess.MergingStep;
 public class ProjectUtils {
 	private static final Logger LOG = LoggerFactory.getLogger(ProjectUtils.class);
 	private static final String CURRENT_PROJECT_PIPELINE = "currentProjectPipeline";
-	private static final TimeBasedGenerator genUUID = Generators.timeBasedGenerator(EthernetAddress.fromInterface());
-	private static final int MAX_PROJECT_CREATE_ATTEMPTS = 50;
 	
 	public static synchronized String createNewProject() {
 		
@@ -80,53 +78,11 @@ public class ProjectUtils {
 	private static String generateNewProjectId() {
 		ProjectIdStrategy strategy = WorkspaceUtils.loadConfig().getProjectIdStrategy();
 		switch(strategy) {
-		case UUID: return generateNewProjectId_UUID(); 
-		case Counter: return generateNewProjectId_Counter();
+		case UUID: return UUIDProjectIdStrategy.generateNewProjectId(); 
+		case Counter: return CounterProjectIdStrategy.generateNewProjectId();
 		default:
 			throw new IllegalArgumentException("Unknown Project Id Strategy:"+strategy);
 		}
-	}
-
-	private static String generateNewProjectId_Counter() {
-		ArrayList<String> projectIds = WorkspaceUtils.getProjectIds();
-		
-		ArrayList<Integer> takenProjectIds = new ArrayList<Integer>();
-		for(String id : projectIds) {
-			try {
-				takenProjectIds.add(Integer.parseInt(id));
-			} catch (NumberFormatException e) {
-				//ignore ids that are not numbers
-			}
-		}
-
-		if (takenProjectIds.isEmpty())
-			return "1";
-
-		Collections.sort(takenProjectIds);
-		// List is in numerical order, so we can simply increase the last value by 1
-		Integer highestId = takenProjectIds.get(takenProjectIds.size() - 1);
-		return Integer.toString(highestId + 1);
-	}
-
-	private static String generateNewProjectId_UUID() {
-		String projId = null;
-		int numAttempts = 0;
-		File projectPath = null;
-		
-		while(numAttempts<MAX_PROJECT_CREATE_ATTEMPTS) {
-			projId = genUUID.generate().toString();
-			numAttempts++;
-			
-			projectPath = new File(WorkspaceUtils.getProjectPath(projId));
-			if (!projectPath.exists()) {
-				break;
-			}
-			//project exists, try again
-		}
-		if(projectPath.exists()) {
-			throw new IllegalStateException("Could not create new project, no unique name after "+numAttempts+" attempts.");
-		}
-		return projId;
 	}
 
 	public static void addBatchConfig(String projId, File tmpFile) {

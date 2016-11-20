@@ -27,7 +27,7 @@
    		$.get(projectsUrl, function(data) {
 			$("#projects").empty();
 			$(data).find("e").each(function(){
-				$("#projects").append("<tr><td><a class=\"withicon\" OnClick=\"loadProjectDetails("+$(this).text()+");\" href=\"#\">Project: "+$(this).text()+" <img src=\"icons/zoom.png\"></a></td><td><a OnClick=\"deleteProject("+$(this).text()+");\" href=\"#\"><img src=\"icons/cancel.png\"></a></tr> ");
+				$("#projects").append("<tr><td><a class=\"withicon\" OnClick=\"loadProjectDetails('"+$(this).text()+"');\" href=\"#\">Project: "+$(this).text()+" <img src=\"icons/zoom.png\"></a></td><td><a OnClick=\"deleteProject('"+$(this).text()+"');\" href=\"#\"><img src=\"icons/cancel.png\"></a></tr> ");
 			});
 		}
 		,"xml");   

@@ -23,6 +23,7 @@ package net.sf.okapi.applications.longhorn.lib;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Properties;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -46,8 +47,10 @@ public class Configuration {
 	private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 	private static final String DEF_WORKING_DIR = System.getProperty("user.home") + File.separator +
 			"Okapi-Longhorn-Files";
+	private static final String PROJECT_ID_STRATEGY = "project-id-strategy";
 	private String versionPropertyFileName = "/version.properties";
 	private String workingDirectory;
+	private ProjectIdStrategy projIdStrategy = ProjectIdStrategy.Counter;
 
 	public Configuration() {
 		LOGGER.info("The default working directory for Okapi Longhorn will be used, " +
@@ -96,6 +99,7 @@ public class Configuration {
 				}
 				workingDirectory = workingDirectory + "_M" + version;
 			}
+			projIdStrategy = getProjectIdStrategy(Doc);
 		}
 		catch (DOMException e) {
 			throw new RuntimeException(e);
@@ -150,6 +154,20 @@ public class Configuration {
 		boolean useUniqueWorkingDir = Boolean.parseBoolean(useUniqueWorkingDirString);
 		return useUniqueWorkingDir;
 	}
+	
+	private ProjectIdStrategy getProjectIdStrategy(Document Doc) {
+		NodeList nodeList = Doc.getElementsByTagName(PROJECT_ID_STRATEGY);
+		if(nodeList.getLength()>0) {
+			try {
+				return ProjectIdStrategy.valueOf(readTextContent(nodeList));
+			} catch (IllegalArgumentException e) {
+				LOGGER.warn("Invalid configuration value for "+PROJECT_ID_STRATEGY+". Allowed values are:"+Arrays.asList(ProjectIdStrategy.values()));
+				throw e;
+			}
+		} 
+		return ProjectIdStrategy.Counter;
+	}
+
 
 	public String getWorkingDirectory() {
 		return workingDirectory;
@@ -161,5 +179,9 @@ public class Configuration {
 
 	protected void setVersionPropertyFileName(String versionPropertyFileName) {
 		this.versionPropertyFileName = versionPropertyFileName;
+	}
+
+	public ProjectIdStrategy getProjectIdStrategy() {
+		return projIdStrategy;
 	}
 }

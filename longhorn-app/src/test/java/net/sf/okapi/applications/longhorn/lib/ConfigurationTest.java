@@ -25,6 +25,7 @@ public class ConfigurationTest {
 	private static final String OKAPI_LONGHORN_CONFIGURATION_USE_UNIQUE_WORKING_DIR = "/okapi-longhorn-configuration-unique-working-dir-true.xml";
 	private static final String OKAPI_LONGHORN_CONFIGURATION = "/okapi-longhorn-configuration.xml";
 	private static final String OKAPI_LONGHORN_CONFIGURATION_INVALID_WORKING_DIR = "/okapi-longhorn-configuration-invalid-working-dir.xml";
+	private static final String OKAPI_LONGHORN_CONFIGURATION_INVALID_PROJECT_ID_STRATEGY = "/okapi-longhorn-configuration-invalid-project-id-strategy.xml";
 
 	@Test
 	public void addVersionToWorkingDirPathIfUseUniqueWorkingDirPathIsTrue() {
@@ -41,6 +42,8 @@ public class ConfigurationTest {
 		Configuration conf = new Configuration(configFileStream);
 		String workingDir = conf.getWorkingDirectory();
 		Assert.assertFalse(workingDir.contains("M0."));
+		//test default project id strategy
+		Assert.assertEquals(ProjectIdStrategy.Counter, conf.getProjectIdStrategy());
 	}
 
 	@Test
@@ -72,6 +75,19 @@ public class ConfigurationTest {
 		}
 
 	}
+	
+	@Test
+	public void throwExceptionIfInvalidProjectIdStrategy() {
+		try {
+			InputStream configFileStream = this.getClass().getResourceAsStream(
+					OKAPI_LONGHORN_CONFIGURATION_INVALID_PROJECT_ID_STRATEGY);
+			Configuration conf = new Configuration(configFileStream);
+			Assert.fail();
+		}
+		catch (RuntimeException e) {
+			Assert.assertTrue(true);
+		}
+	}
 
 	@Test
 	public void ignoreFileSeperatorOnEndOfWorkingDirPathWhenAddingVersion() {
@@ -82,5 +98,6 @@ public class ConfigurationTest {
 		assertTrue("The configured directory does not contain a version extension",
 				workingDir.contains("longhorn-files_M0."));
 
+		Assert.assertEquals(ProjectIdStrategy.Counter, conf.getProjectIdStrategy());
 	}
 }

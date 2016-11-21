@@ -24,11 +24,17 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.uuid.EthernetAddress;
+import com.fasterxml.uuid.Generators;
+import com.fasterxml.uuid.impl.TimeBasedGenerator;
 
 import net.sf.okapi.applications.rainbow.Project;
 import net.sf.okapi.applications.rainbow.batchconfig.BatchConfiguration;
@@ -51,16 +57,16 @@ import net.sf.okapi.steps.rainbowkit.postprocess.MergingStep;
 public class ProjectUtils {
 	private static final Logger LOG = LoggerFactory.getLogger(ProjectUtils.class);
 	private static final String CURRENT_PROJECT_PIPELINE = "currentProjectPipeline";
-
-	public static synchronized int createNewProject() {
-		
-		int projId = WorkspaceUtils.determineNewProjectId();
+	
+	public static synchronized String createNewProject() {
 		
 		File workingDir = new File(WorkspaceUtils.getWorkingDirectory());
 		if (!workingDir.exists()) {
 			LOG.info("The working directory " + workingDir.getAbsolutePath() + " doesn't exist. " +
 					"It will be created.");
 		}
+		
+		String projId = generateNewProjectId();
 		
 		Util.createDirectories(WorkspaceUtils.getInputDirPath(projId) + File.separator);
 		Util.createDirectories(WorkspaceUtils.getConfigDirPath(projId) + File.separator);
@@ -69,7 +75,17 @@ public class ProjectUtils {
 		return projId;
 	}
 
-	public static void addBatchConfig(int projId, File tmpFile) {
+	private static String generateNewProjectId() {
+		ProjectIdStrategy strategy = WorkspaceUtils.loadConfig().getProjectIdStrategy();
+		switch(strategy) {
+		case UUID: return UUIDProjectIdStrategy.generateNewProjectId(); 
+		case Counter: return CounterProjectIdStrategy.generateNewProjectId();
+		default:
+			throw new IllegalArgumentException("Unknown Project Id Strategy:"+strategy);
+		}
+	}
+
+	public static void addBatchConfig(String projId, File tmpFile) {
 		PluginsManager plManager = new PluginsManager();
 		try {
 			File targetFile = WorkspaceUtils.getBatchConfigurationFile(projId);
@@ -96,7 +112,7 @@ public class ProjectUtils {
 	 * @param plug-in manager for this wrapper
 	 * @return A PipelineWrapper using all available filter configurations and plug-ins
 	 */
-	private static PipelineWrapper preparePipelineWrapper(int projId, PluginsManager plManager) {				
+	private static PipelineWrapper preparePipelineWrapper(String projId, PluginsManager plManager) {				
 		// Load local plug-ins
 		plManager.discover(new File(WorkspaceUtils.getConfigDirPath(projId)), true);
 
@@ -118,13 +134,13 @@ public class ProjectUtils {
 		return pipelineWrapper;
 	}
 
-	public static void addInputFile(int projId, File tmpFile, String filename) {
+	public static void addInputFile(String projId, File tmpFile, String filename) {
 		File targetFile = WorkspaceUtils.getInputFile(projId, filename);
 		Util.createDirectories(targetFile.getAbsolutePath());
 		StreamUtil.copy(tmpFile, targetFile);
 	}
 
-	public static void executeProject(int projId) throws IOException{
+	public static void executeProject(String projId) throws IOException{
 		executeProject(projId, null, null);
 	}
 	
@@ -134,7 +150,7 @@ public class ProjectUtils {
 	 * @param targetLanguage The main target language (for components that don't support multiple target locales)
 	 * @throws IOException
 	 */
-	public static void executeProject(int projId, String sourceLanguage, String targetLanguage) throws IOException {
+	public static void executeProject(String projId, String sourceLanguage, String targetLanguage) throws IOException {
 		executeProject(projId, sourceLanguage, targetLanguage, null);
 	}
 		
@@ -145,7 +161,7 @@ public class ProjectUtils {
 	 * @param targetLocales The full list of target locales (may be null)
 	 * @throws IOException
 	 */
-	public static void executeProject(int projId, String sourceLanguage, String targetLanguage, List<LocaleId> targetLocales) throws IOException {
+	public static void executeProject(String projId, String sourceLanguage, String targetLanguage, List<LocaleId> targetLocales) throws IOException {
 		PluginsManager plManager = new PluginsManager();
 		try {
 			
@@ -183,7 +199,7 @@ public class ProjectUtils {
 		}
 	}
 
-	private static void logPipelineWrapper(int projId, PipelineWrapper pipelineWrapper) {
+	private static void logPipelineWrapper(String projId, PipelineWrapper pipelineWrapper) {
 		if (LOG.isInfoEnabled()) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("Executing pipeline for project " + projId + ":");
@@ -197,7 +213,7 @@ public class ProjectUtils {
 		}
 	}
 
-	private static Project prepareRainbowProject(int projId, String sourceLanguage, String targetLanguage,
+	private static Project prepareRainbowProject(String projId, String sourceLanguage, String targetLanguage,
 			PipelineWrapper pipelineWrapper) {
 		// Create a new, empty rainbow project
 		Project rainbowProject = new Project(new LanguageManager());
@@ -225,7 +241,7 @@ public class ProjectUtils {
 	 * 
 	 * @param pipelineWrapper The pipeline wrapper with the pipeline to be executed
 	 */
-	private static void adjustStepsPaths(int projId, PipelineWrapper pipelineWrapper) {
+	private static void adjustStepsPaths(String projId, PipelineWrapper pipelineWrapper) {
 		for (StepInfo step : pipelineWrapper.getSteps()) {
 			// TKit Creation
 			if (step.stepClass.equals(ExtractionStep.class.getName())) {
@@ -266,7 +282,7 @@ public class ProjectUtils {
 	 * @param filterConfigByExtension The mapping from file extensions (including dot, ".html" for example)
 	 * 			to filter configurations (e.g. "okf_html@Customized")
 	 */
-	private static void addDocumentsToProject(int projId, Project rainbowProject,
+	private static void addDocumentsToProject(String projId, Project rainbowProject,
 			HashMap<String, String> filterConfigByExtension) {
 		
 		for (File inputFile : WorkspaceUtils.getInputFiles(projId)) {
@@ -293,7 +309,7 @@ public class ProjectUtils {
 	 * @param filterConfigByExtension The mapping from file extensions (including dot, ".html" for example)
 	 * 			to filter configurations (e.g. "okf_html@Customized")
 	 */
-	private static void addManifestToProject(int projId, Project rainbowProject,
+	private static void addManifestToProject(String projId, Project rainbowProject,
 			HashMap<String, String> filterConfigByExtension) {
 		
 		for (File inputFile : WorkspaceUtils.getInputFiles(projId)) {
@@ -325,7 +341,7 @@ public class ProjectUtils {
 	 * @return A HashMap with the file extension (keys) to filter configuration (values) mapping
 	 * @throws IOException If the file could not be read or it doesn't exist
 	 */
-	private static HashMap<String, String> loadFilterConfigurationMapping(int projId)
+	private static HashMap<String, String> loadFilterConfigurationMapping(String projId)
 			throws IOException {
 		
 		BufferedReader fh = new BufferedReader(new FileReader(WorkspaceUtils.getFilterMappingFile(projId)));
@@ -345,7 +361,7 @@ public class ProjectUtils {
 		return filterConfigByExtension;
 	}
 
-	public static void addInputFilesFromArchive(int projId, File zipFile) throws IOException {
+	public static void addInputFilesFromArchive(String projId, File zipFile) throws IOException {
 		WorkspaceUtils.unzip(zipFile, WorkspaceUtils.getInputDirPath(projId));
 	}
 }

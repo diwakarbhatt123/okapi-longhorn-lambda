@@ -49,25 +49,51 @@ public class Configuration {
 			"Okapi-Longhorn-Files";
 	private static final String PROJECT_ID_STRATEGY = "project-id-strategy";
 	private String versionPropertyFileName = "/version.properties";
-	private String workingDirectory;
+	private String workingDirectory = null;
 	private ProjectIdStrategy projIdStrategy = ProjectIdStrategy.Counter;
 
+	@Deprecated
 	public Configuration() {
 		LOGGER.info("The default working directory for Okapi Longhorn will be used, " +
 				"because no other was specified: " + DEF_WORKING_DIR);
 		workingDirectory = DEF_WORKING_DIR;
 	}
 
+	@Deprecated
 	public Configuration(String workingDir) {
 		workingDir = workingDir.replace("\\", File.separator);
 		workingDir = workingDir.replace(SLASH, File.separator);
 		workingDirectory = workingDir;
 	}
 
+	@Deprecated
 	public Configuration(InputStream confXml) {
 		loadFromFile(confXml);
 	}
 
+	/**
+	 * Both parameters of the constructor are optional (may be null). However a working directory must be specified either in the first param 
+	 * workingDir or inside the XML file param confXml.
+	 * 
+	 * Sample XML configuration file:
+	 * <pre>
+	 * {@code
+	 * <longhorn-config>
+	 * 	<use-unique-working-directory>True</use-unique-working-directory>
+	 * 	<working-directory>testData/longhorn-files/</working-directory>
+	 *  <!-- For allowed project-id-strategy values see - net.sf.okapi.applications.longhorn.lib.ProjectIdStrategy -->
+	 * 	<project-id-strategy>Counter</project-id-strategy>
+	 * </longhorn-config>
+	 * }
+	 * </pre>
+	 * 
+	 * @param workingDir Optional. Path to working directory. Path specified here overrides the working-directory specified in the XML config.
+	 * @param confXml Optional. InputStream for configuration XML file.
+	 */
+	public Configuration(String workingDir, InputStream confXml) {
+		loadFromFile(workingDir, confXml);
+	}
+	
 	private String getAPIVersion() {
 		String path = getVersionPropertyFileName();
 		InputStream stream = getClass().getResourceAsStream(path);
@@ -84,37 +110,51 @@ public class Configuration {
 		}
 	}
 
+	private void loadFromFile(String workingDir, InputStream confXml) {
+		if(workingDir != null) {
+			workingDirectory = cleanUpPathAndRemoveLastFileSeperator(workingDir);
+		}
+		if(confXml != null) {
+			//load configuration details from file
+			try {
+				Document Doc = createDocumentBuilderForFile(confXml);
+				if(workingDirectory == null) {
+					//read working directory location from file if it's not already specified in system property
+					workingDirectory = getWorkingDirectory(Doc);
+					workingDirectory = cleanUpPathAndRemoveLastFileSeperator(workingDirectory);
+				}
+				if (getUseUniqueWorkingDir(Doc)) {
+					String version = getAPIVersion();
+					if (version == null) {
+						LOGGER.warn("No version file found. Can't create unique working directoy for longhorn.");
+						throw new RuntimeException("UseUniqueWorkingDir is set to true but no version for longhorn found.");
+					}
+					workingDirectory = workingDirectory + "_M" + version;
+				}
+				projIdStrategy = getProjectIdStrategy(Doc);
+			}
+			catch (DOMException e) {
+				throw new RuntimeException(e);
+			}
+			catch (SAXException e) {
+				throw new RuntimeException(e);
+			}
+			catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+			catch (ParserConfigurationException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		
+		if (workingDirectory == null)
+			throw new IllegalArgumentException("Working directory not specified in configuration file and system property");
+	}
+
+	@Deprecated
 	public void loadFromFile(InputStream confXml) {
 		workingDirectory = null;
-		try {
-			Document Doc = createDocumentBuilderForFile(confXml);
-			workingDirectory = getWorkingDirectory(Doc);
-			boolean useUniqueWorkingDir = getUseUniqueWorkingDir(Doc);
-			if (useUniqueWorkingDir) {
-				workingDirectory = cleanUpPathAndRemoveLastFileSeperator(workingDirectory);
-				String version = getAPIVersion();
-				if (version == null) {
-					LOGGER.warn("No version file found. Can't create unique working directoy for longhorn.");
-					throw new RuntimeException("UseUniqueWorkingDir is set to true but no version for longhorn found.");
-				}
-				workingDirectory = workingDirectory + "_M" + version;
-			}
-			projIdStrategy = getProjectIdStrategy(Doc);
-		}
-		catch (DOMException e) {
-			throw new RuntimeException(e);
-		}
-		catch (SAXException e) {
-			throw new RuntimeException(e);
-		}
-		catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-		catch (ParserConfigurationException e) {
-			throw new RuntimeException(e);
-		}
-		if (workingDirectory == null)
-			throw new IllegalArgumentException("Working directory not specified in configuration file");
+		loadFromFile(null, confXml);
 	}
 
 	private String cleanUpPathAndRemoveLastFileSeperator(String path) {

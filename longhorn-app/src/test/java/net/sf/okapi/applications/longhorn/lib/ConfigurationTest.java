@@ -13,13 +13,16 @@
 
 package net.sf.okapi.applications.longhorn.lib;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
 import org.junit.Assert;
 import org.junit.Test;
 
+@SuppressWarnings("deprecation")
 public class ConfigurationTest {
 
 	private static final String OKAPI_LONGHORN_CONFIGURATION_USE_UNIQUE_WORKING_DIR = "/okapi-longhorn-configuration-unique-working-dir-true.xml";
@@ -27,6 +30,7 @@ public class ConfigurationTest {
 	private static final String OKAPI_LONGHORN_CONFIGURATION_INVALID_WORKING_DIR = "/okapi-longhorn-configuration-invalid-working-dir.xml";
 	private static final String OKAPI_LONGHORN_CONFIGURATION_INVALID_PROJECT_ID_STRATEGY = "/okapi-longhorn-configuration-invalid-project-id-strategy.xml";
 
+	
 	@Test
 	public void addVersionToWorkingDirPathIfUseUniqueWorkingDirPathIsTrue() {
 		InputStream configFileStream = this.getClass().getResourceAsStream(
@@ -99,5 +103,14 @@ public class ConfigurationTest {
 				workingDir.contains("longhorn-files_M0."));
 
 		Assert.assertEquals(ProjectIdStrategy.Counter, conf.getProjectIdStrategy());
+	}
+	
+	@Test
+	public void overrideWorkingDirInXMLConfig() {
+		Configuration conf = new Configuration("overrideWorkingDir", 
+				new ByteArrayInputStream(("<longhorn-config>\n" + 
+						"	 <working-directory>testData/longhorn-files/</working-directory>\n" + 
+						"</longhorn-config>").getBytes()));
+		assertEquals("overrideWorkingDir",	conf.getWorkingDirectory());
 	}
 }

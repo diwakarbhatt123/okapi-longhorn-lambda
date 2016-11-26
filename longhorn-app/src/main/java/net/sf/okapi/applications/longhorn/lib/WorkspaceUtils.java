@@ -97,30 +97,22 @@ public final class WorkspaceUtils {
 	 * 		was found) or the default configuration
 	 */
 	public static Configuration loadConfig() {
-		
-		Configuration config = null;
 
 		String workdirEnvVar = System.getProperty("LONGHORN_WORKDIR");
 		String userHome = System.getProperty("user.home");
 		File userConfig = new File(userHome + "/okapi-longhorn-configuration.xml");
-		
-		if (workdirEnvVar != null) {
-			config = new Configuration(workdirEnvVar);
-		}
-		else if (userConfig.exists()) {
+		FileInputStream userConfigStream = null;
+		if(userConfig.exists()) {
 			try {
-				config = new Configuration(new FileInputStream(userConfig));
+				userConfigStream = new FileInputStream(userConfig);
 			}
 			catch (FileNotFoundException e) {
 				// This should be impossible, because we checked for the existence of the file
 				throw new RuntimeException(e);
 			}
 		}
-		else {
-			config = new Configuration();
-		}
 		
-		return config;
+		return new Configuration(workdirEnvVar, userConfigStream);
 	}
 
 	/**

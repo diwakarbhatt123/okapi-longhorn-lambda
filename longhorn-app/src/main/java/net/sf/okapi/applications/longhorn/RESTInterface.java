@@ -27,7 +27,9 @@ import java.io.StringWriter;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -47,6 +49,8 @@ import net.sf.okapi.applications.longhorn.lib.ProjectUtils;
 import net.sf.okapi.applications.longhorn.lib.WorkspaceUtils;
 import net.sf.okapi.common.LocaleId;
 import net.sf.okapi.common.Util;
+import net.sf.okapi.lib.longhornapi.impl.rest.transport.StepConfigOverride;
+import net.sf.okapi.lib.longhornapi.impl.rest.transport.XMLStepConfigOverrideList;
 import net.sf.okapi.lib.longhornapi.impl.rest.transport.XMLStringList;
 
 import org.apache.commons.httpclient.HttpStatus;
@@ -144,19 +148,35 @@ public class RESTInterface {
 
 		try {
 			File tmpFile = input.getFormDataPart(WorkspaceUtils.BATCH_CONF_PARAM, File.class, null);
-			ProjectUtils.addBatchConfig(projId, tmpFile);
+			String str = input.getFormDataPart(WorkspaceUtils.OVERRIDE_STEPS_PARAM, String.class, null);
+			
+			ProjectUtils.addBatchConfig(projId, tmpFile, convertToMap(XMLStepConfigOverrideList.unmarshal(str)));
 			LOG.info("Adding batch config to project " + projId);
 			tmpFile.delete();
 		}
-		catch (IOException e) {
+		catch (Exception e) {
 			int status = HttpStatus.SC_INTERNAL_SERVER_ERROR;
-			return Response.status(status).build();
+			return Response.status(status).entity(e.getClass().getName()+":"+e.getMessage()).build();
 		}
 
 		int status = HttpStatus.SC_OK;
 		return Response.status(status).build();
 	}
 
+	private Map<String, String> convertToMap(ArrayList<StepConfigOverride> unmarshal) {
+		if(null==unmarshal) {
+			return null;
+		}
+		HashMap<String, String> overrideParams = new HashMap<String, String>(unmarshal.size());
+		for(StepConfigOverride sco : unmarshal) {
+			if(overrideParams.get(sco.getStepClassName())!=null) {
+				throw new IllegalArgumentException("Duplicate step class name in override params not allowed.");
+			}
+			overrideParams.put(sco.getStepClassName(), sco.getStepParams());
+		}
+		return overrideParams;
+	}
+	
 	/**
 	 * Stores the posted file in the input file's directory of the project with the given id.
 	 * 

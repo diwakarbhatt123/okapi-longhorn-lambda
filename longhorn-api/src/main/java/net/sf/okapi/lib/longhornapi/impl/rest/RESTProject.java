@@ -29,12 +29,16 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.JAXBException;
+
 import net.sf.okapi.lib.longhornapi.LonghornFile;
 import net.sf.okapi.lib.longhornapi.LonghornProject;
 import net.sf.okapi.lib.longhornapi.impl.rest.RESTFile.Filetype;
+import net.sf.okapi.lib.longhornapi.impl.rest.transport.XMLStepConfigOverrideList;
 
 import org.apache.commons.httpclient.methods.multipart.FilePart;
 import org.apache.commons.httpclient.methods.multipart.Part;
+import org.apache.commons.httpclient.methods.multipart.StringPart;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -72,12 +76,23 @@ public class RESTProject implements LonghornProject {
 
 	@Override
 	public void addBatchConfiguration(File bconf) throws FileNotFoundException {
-		Part[] parts = {
-				new FilePart("batchConfiguration", bconf.getName(), bconf)};
+		this.addBatchConfiguration(bconf, null);
+	}
+	
+	@Override
+	public void addBatchConfiguration(File bconf, XMLStepConfigOverrideList overrideStepParams) throws FileNotFoundException {
+		List<Part> parts = new ArrayList<>(2);	
+		parts.add(new FilePart("batchConfiguration", bconf.getName(), bconf));
+		
 		try {
-			Util.post(projUri + "/batchConfiguration", parts);
+			if(null!=overrideStepParams) {
+				parts.add(new StringPart("overrideStepParams", XMLStepConfigOverrideList.marshal(overrideStepParams)));
+			}
+			Util.post(projUri + "/batchConfiguration", parts.toArray(new Part[0]));
 		}
 		catch (IOException e) {
+			throw new RuntimeException(e);
+		} catch (JAXBException e) {
 			throw new RuntimeException(e);
 		}
 	}

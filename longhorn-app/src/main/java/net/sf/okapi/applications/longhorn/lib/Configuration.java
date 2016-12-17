@@ -54,9 +54,7 @@ public class Configuration {
 
 	@Deprecated
 	public Configuration() {
-		LOGGER.info("The default working directory for Okapi Longhorn will be used, " +
-				"because no other was specified: " + DEF_WORKING_DIR);
-		workingDirectory = DEF_WORKING_DIR;
+		setDefaultWorkingDirectory();
 	}
 
 	@Deprecated
@@ -72,8 +70,9 @@ public class Configuration {
 	}
 
 	/**
-	 * Both parameters of the constructor are optional (may be null). However a working directory must be specified either in the first param 
-	 * workingDir or inside the XML file param confXml.
+	 * Both parameters of the constructor are optional (may be null). If no working directory is specified either in
+	 * the first param workingDir or inside the XML file param confXml, a default directory in the user's home directory
+	 * will be used.
 	 * 
 	 * Sample XML configuration file:
 	 * <pre>
@@ -147,8 +146,15 @@ public class Configuration {
 			}
 		}
 		
-		if (workingDirectory == null)
-			throw new IllegalArgumentException("Working directory not specified in configuration file and system property");
+		if (workingDirectory == null) {
+			setDefaultWorkingDirectory();
+		}
+	}
+
+	private void setDefaultWorkingDirectory() {
+		LOGGER.info("The default working directory for Okapi Longhorn will be used, " +
+				"because no other was specified: " + DEF_WORKING_DIR);
+		workingDirectory = DEF_WORKING_DIR;
 	}
 
 	@Deprecated

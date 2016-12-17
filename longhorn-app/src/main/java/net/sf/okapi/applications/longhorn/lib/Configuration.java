@@ -145,7 +145,6 @@ public class Configuration {
 				throw new RuntimeException(e);
 			}
 		}
-		
 		if (workingDirectory == null) {
 			setDefaultWorkingDirectory();
 		}
@@ -159,6 +158,9 @@ public class Configuration {
 
 	@Deprecated
 	public void loadFromFile(InputStream confXml) {
+		if (confXml == null) {
+			throw new IllegalArgumentException("Invalid XML stream");
+		}
 		workingDirectory = null;
 		loadFromFile(null, confXml);
 	}

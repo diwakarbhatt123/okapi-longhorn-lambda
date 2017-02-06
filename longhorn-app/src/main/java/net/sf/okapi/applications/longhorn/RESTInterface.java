@@ -165,7 +165,7 @@ public class RESTInterface {
 
 	private Map<String, String> convertToMap(ArrayList<StepConfigOverride> unmarshal) {
 		if(null==unmarshal) {
-			return null;
+			return new HashMap<>();
 		}
 		HashMap<String, String> overrideParams = new HashMap<String, String>(unmarshal.size());
 		for(StepConfigOverride sco : unmarshal) {

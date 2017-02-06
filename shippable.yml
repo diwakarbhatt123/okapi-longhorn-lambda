@@ -1,0 +1,20 @@
+language: java
+
+jdk:
+   - openjdk7
+
+build:
+  ci:
+   - mkdir -p shippable/testresults
+   - mvn clean install -Dmaven.test.redirectTestOutputToFile=true
+   - cp `pwd`/longhorn-app/target/surefire-reports/* `pwd`/shippable/testresults/
+  on_success:
+   - cd longhorn-app
+   - mvn docker:build -Ddocker.registry.name=okapiframework/
+   - docker push okapiframework/okapi-longhorn
+
+
+integrations:
+  hub:
+    - integrationName : docker
+      type : docker

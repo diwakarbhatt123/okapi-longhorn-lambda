@@ -102,7 +102,14 @@
 		});
    
     };
-	
+
+    function toggleXMLStepParamOverride(cb) {
+    	if(cb.checked)
+    		$("#overrideStepParams").show();
+    	else
+    		$("#overrideStepParams").hide();
+    }
+    
 $(document).ready(function() {
 
    $("#toggle_details").hide();
@@ -122,10 +129,9 @@ $(document).ready(function() {
 		beforeSubmit:  function(formData, jqForm, options) { 
 			options.url=projectsUrl+$("#project").text()+"/batchConfiguration";
 		},
-		success:    function() { 
-			alert("BatchConfiguration File Uploaded!"); 
+		success:    function(responseText, statusText) {
+			alert("BatchConfiguration File Uploaded!, statusText="+statusText+", responseText="+responseText); 
 			loadProjectDetails($("#project").text());
-			
 		} 
 	}); 
 	

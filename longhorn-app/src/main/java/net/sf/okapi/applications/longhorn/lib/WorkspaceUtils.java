@@ -80,6 +80,7 @@ public final class WorkspaceUtils {
 
 	public static final String BATCH_CONF_PARAM = "batchConfiguration";
 	public static final String INPUT_FILE_PARAM = "inputFile";
+	public static final String OVERRIDE_STEPS_PARAM = "overrideStepParams";
 
 	/**
 	 * @return The directory where the local projects will be created and saved temporarily

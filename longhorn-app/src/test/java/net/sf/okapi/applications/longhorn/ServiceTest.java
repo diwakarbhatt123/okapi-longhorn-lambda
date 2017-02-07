@@ -39,6 +39,10 @@ import net.sf.okapi.lib.longhornapi.LonghornFile;
 import net.sf.okapi.lib.longhornapi.LonghornProject;
 import net.sf.okapi.lib.longhornapi.LonghornService;
 import net.sf.okapi.lib.longhornapi.impl.rest.RESTService;
+import net.sf.okapi.lib.longhornapi.impl.rest.transport.StepConfigOverride;
+import net.sf.okapi.lib.longhornapi.impl.rest.transport.XMLStepConfigOverrideList;
+import net.sf.okapi.steps.textmodification.Parameters;
+import net.sf.okapi.steps.textmodification.TextModificationStep;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -150,6 +154,74 @@ public class ServiceTest {
 		}
 		assertTrue(relFilePaths.contains("searchandreplacestep.html"));
 		assertTrue(relFilePaths.contains("subdir1/segmentationstep.html"));
+	}
+	
+	@Test
+	public void addBconfWithDuplicateOverridParams() throws FileNotFoundException {
+		
+		XMLStepConfigOverrideList overrideParams = new XMLStepConfigOverrideList();
+		StepConfigOverride item = new StepConfigOverride();
+		item.setStepClassName("abcd");
+		item.setStepParams("def");
+		overrideParams.add(item);
+		
+		item = new StepConfigOverride();
+		item.setStepClassName("abcd");
+		item.setStepParams("def22");
+		overrideParams.add(item);
+		try {
+			URL bconfUrl = ServiceTest.class.getResource("/html_segment_and_text_mod.bconf");
+			File bconf = new File(bconfUrl.toURI()); 
+			emptyProj.addBatchConfiguration(bconf, overrideParams);
+			
+			fail("Test should have resulted in an exception for duplicate step class name");
+		} catch(Exception e) {
+			assertTrue(e.getMessage().contains("Duplicate"));
+		}
+	}
+	
+	@Test
+	public void addBconfWithBadOverridParams() throws FileNotFoundException {
+		
+		XMLStepConfigOverrideList overrideParams = new XMLStepConfigOverrideList();
+		StepConfigOverride item = new StepConfigOverride();
+		item.setStepClassName("abcd");
+		item.setStepParams("def");
+		overrideParams.add(item);
+		try {
+			URL bconfUrl = ServiceTest.class.getResource("/html_segment_and_text_mod.bconf");
+			File bconf = new File(bconfUrl.toURI());
+			emptyProj.addBatchConfiguration(bconf, overrideParams);			
+			fail("Test should have thrown exception due to wrong override params.");
+		} catch(Exception w) {
+			assertTrue(w.getMessage().contains("does not exist"));
+		}
+	}
+	
+	@Test
+	public void addBconfWithOverridParams() throws FileNotFoundException {
+		
+		TextModificationStep tmsStep = new TextModificationStep();
+		Parameters p = (Parameters)tmsStep.getParameters();
+		p.setApplyToBlankEntries(false);
+		
+		XMLStepConfigOverrideList overrideParams = new XMLStepConfigOverrideList();
+		StepConfigOverride item = new StepConfigOverride();
+		item.setStepClassName("net.sf.okapi.steps.textmodification.TextModificationStep");
+		item.setStepParams(p.toString());
+		overrideParams.add(item);
+		
+		try
+		{
+		URL bconfUrl = ServiceTest.class.getResource("/html_segment_and_text_mod.bconf");
+		File bconf = new File(bconfUrl.toURI());
+		
+		emptyProj.addBatchConfiguration(bconf, overrideParams);
+		}
+		catch(Exception w) {
+			assertTrue(w.getMessage().contains("override params"));
+		}
+		
 	}
 	
 	@Test

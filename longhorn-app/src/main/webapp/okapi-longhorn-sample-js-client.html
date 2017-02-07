@@ -40,8 +40,18 @@
 <br>
 </div>
 <table>
-<tr><td>Specify batch config file </td><td><form id="batchForm" method="post"><input type="file" name="batchConfiguration"><input type="submit" value="Upload"></form></td></tr>
-<tr><td>Add input file </td><td><form id="inputFileForm" method="post"><input type="file" name="inputFile"><input type="submit" value="Upload"></form></td></tr>
+<tr>
+	<td>Specify batch config file </td>
+	<td>
+		<form id="batchForm" method="post"><input type="file" name="batchConfiguration">
+		<input type="checkbox" value="useStepParamsOverride" onClick="toggleXMLStepParamOverride(this)"/> Override Step Parameters
+		<textarea name="overrideStepParams" rows="10" cols="80" id="overrideStepParams" 
+			style="display: none" placeholder="<l><e><stepClassName>net.sf.okapi.someStepName</stepClassName><stepParams>someParam=value</stepParams></e></l>"></textarea>
+		<input type="submit" value="Upload"></form></td>
+</tr>
+<tr>
+	<td>Add input file </td>
+	<td><form id="inputFileForm" method="post"><input type="file" name="inputFile"><input type="submit" value="Upload"></form></td></tr>
 </table>
 
 <p><a class="withicon" OnClick="executeProject();" href="#">Execute <img src="icons/control_play_blue.png"> </a></p>

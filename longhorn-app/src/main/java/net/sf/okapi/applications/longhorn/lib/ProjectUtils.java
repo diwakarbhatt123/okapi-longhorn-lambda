@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,7 +86,7 @@ public class ProjectUtils {
 		}
 	}
 
-	public static void addBatchConfig(String projId, File tmpFile) {
+	public static void addBatchConfig(String projId, File tmpFile, Map<String, String> stepParamOverrides) {
 		PluginsManager plManager = new PluginsManager();
 		try {
 			File targetFile = WorkspaceUtils.getBatchConfigurationFile(projId);
@@ -96,7 +97,7 @@ public class ProjectUtils {
 			// install batch configuration to config directory
 			BatchConfiguration bconf = new BatchConfiguration();
 			bconf.installConfiguration(targetFile.getAbsolutePath(),
-					WorkspaceUtils.getConfigDirPath(projId), pipelineWrapper);
+					WorkspaceUtils.getConfigDirPath(projId), pipelineWrapper, stepParamOverrides);
 		}
 		finally {
 			plManager.releaseClassLoader();

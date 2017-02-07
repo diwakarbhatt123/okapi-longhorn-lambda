@@ -26,6 +26,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.okapi.lib.longhornapi.impl.rest.transport.XMLStepConfigOverrideList;
+
 /**
  * Provides abstract methods for interacting with one of the temporary projects
  * available on a Longhorn web-service instance.
@@ -41,6 +43,17 @@ public interface LonghornProject {
 	 */
 	void addBatchConfiguration(File bconf) throws FileNotFoundException;
 	
+	/**
+	 * Pushes a batch configuration file that was exported from Rainbow to the project.
+	 * It will be used to process the input files when {@link #executePipeline()} is called.
+	 * 
+	 * @param bconf A batch configuration file that was exported from Rainbow
+	 * @param overrides A list of Pipeline Step Parameters that should override the settings
+	 * 	specified in the pipeline in the bconf file
+	 * @throws FileNotFoundException If the file does not exist
+	 */
+	void addBatchConfiguration(File bconf, XMLStepConfigOverrideList overrides)
+				throws FileNotFoundException;
 	/**
 	 * Adds an input file to the project. It will be processed when {@link #executePipeline()} is called.
 	 * 

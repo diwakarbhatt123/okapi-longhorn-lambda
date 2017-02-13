@@ -4,6 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -14,10 +16,39 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 
 /**
- * Helper class to transform a collection of Strings to XML using JAXB
- * and for transforming that XML format back into an ArrayList of Strings.
+ * Helper class to transform a collection of Strings pairs to XML using JAXB
+ * and for transforming that XML format back into an Map of the string pairs. 
+ * Each pair is the fully qualified class name of an Okapi pipeline step and the 
+ * string representation of the step's parameters.
  * 
- * TODO example
+ * Example:
+ * <pre>
+ * {@code
+ *  
+ * <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+ * <l>
+ * 	<e>
+ * 		<stepClassName>abcd</stepClassName>
+ * 		<stepParams>def</stepParams>
+ * 	</e>
+ * 	<e>
+ * 		<stepClassName>net.sf.okapi.steps.textmodification.TextModificationStep</stepClassName>
+ * 		<stepParams>#v1
+ * type.i=0
+ * addPrefix.b=false
+ * prefix={START_
+ * addSuffix.b=false
+ * suffix=_END}
+ * applyToExistingTarget.b=false
+ * addName.b=false
+ * addID.b=false
+ * markSegments.b=false
+ * applyToBlankEntries.b=false
+ * expand.b=false
+ * script.i=0</stepParams>
+ * 	</e>
+ * </l>
+ * }
  */
 @XmlRootElement(name="l")
 public class XMLStepConfigOverrideList {
@@ -66,28 +97,38 @@ public class XMLStepConfigOverrideList {
     
 	/**
 	 * Transforms the XML representation of an <code>XMLStringList</code>
-	 * back into an <code>ArrayList</code> of Strings.
-	 * 
-	 * TODO example
+	 * back into an <code>Map</code> of Step class name to step params. For example XML
+	 * refer to the class description above.
 	 * 
 	 * @param xml An XMLStringList as XML
-	 * @return The list element's contents
+	 * @return The map of pipeline step class names to the corresponding override params
 	 * @throws JAXBException If an error occurred during the unmarshalling
 	 */
-	public static ArrayList<StepConfigOverride> unmarshal(String xml) throws JAXBException {
+	public static Map<String, String> unmarshal(String xml) throws JAXBException {
 		if(null==xml) {
-			return null;
+			return new HashMap<>();
 		}
 		try {
 			JAXBContext jc = JAXBContext.newInstance(XMLStepConfigOverrideList.class);
 			Unmarshaller u = jc.createUnmarshaller();
 			XMLStepConfigOverrideList list = (XMLStepConfigOverrideList) u.unmarshal(new ByteArrayInputStream(xml.getBytes()));
-			return list.getElements();
+			return convertToMap(list.getElements());
 		}
 		catch (JAXBException e) {
 			throw new JAXBException(xml, e);
 		}
     }
+
+	private static Map<String, String> convertToMap(ArrayList<StepConfigOverride> unmarshal) {
+		HashMap<String, String> overrideParams = new HashMap<String, String>(unmarshal.size());
+		for(StepConfigOverride sco : unmarshal) {
+			if(overrideParams.get(sco.getStepClassName())!=null) {
+				throw new IllegalArgumentException("Duplicate step class name in override params not allowed.");
+			}
+			overrideParams.put(sco.getStepClassName(), sco.getStepParams());
+		}
+		return overrideParams;
+	}
 
 	public static String marshal(XMLStepConfigOverrideList list) throws JAXBException {
 		if(null==list) {

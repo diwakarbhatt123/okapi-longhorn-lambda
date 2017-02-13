@@ -150,7 +150,7 @@ public class RESTInterface {
 			File tmpFile = input.getFormDataPart(WorkspaceUtils.BATCH_CONF_PARAM, File.class, null);
 			String str = input.getFormDataPart(WorkspaceUtils.OVERRIDE_STEPS_PARAM, String.class, null);
 			
-			ProjectUtils.addBatchConfig(projId, tmpFile, convertToMap(XMLStepConfigOverrideList.unmarshal(str)));
+			ProjectUtils.addBatchConfig(projId, tmpFile, XMLStepConfigOverrideList.unmarshal(str));
 			LOG.info("Adding batch config to project " + projId);
 			tmpFile.delete();
 		}
@@ -161,20 +161,6 @@ public class RESTInterface {
 
 		int status = HttpStatus.SC_OK;
 		return Response.status(status).build();
-	}
-
-	private Map<String, String> convertToMap(ArrayList<StepConfigOverride> unmarshal) {
-		if(null==unmarshal) {
-			return new HashMap<>();
-		}
-		HashMap<String, String> overrideParams = new HashMap<String, String>(unmarshal.size());
-		for(StepConfigOverride sco : unmarshal) {
-			if(overrideParams.get(sco.getStepClassName())!=null) {
-				throw new IllegalArgumentException("Duplicate step class name in override params not allowed.");
-			}
-			overrideParams.put(sco.getStepClassName(), sco.getStepParams());
-		}
-		return overrideParams;
 	}
 	
 	/**

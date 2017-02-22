@@ -80,6 +80,7 @@ public final class WorkspaceUtils {
 
 	public static final String BATCH_CONF_PARAM = "batchConfiguration";
 	public static final String INPUT_FILE_PARAM = "inputFile";
+	public static final String OVERRIDE_STEPS_PARAM = "overrideStepParams";
 
 	/**
 	 * @return The directory where the local projects will be created and saved temporarily
@@ -96,31 +97,23 @@ public final class WorkspaceUtils {
 	 * @return The user's configuration (if <code>System.getProperty("user.home") + "/okapi-longhorn-configuration.xml"</code>
 	 * 		was found) or the default configuration
 	 */
-	private static Configuration loadConfig() {
-		
-		Configuration config = null;
+	public static Configuration loadConfig() {
 
 		String workdirEnvVar = System.getProperty("LONGHORN_WORKDIR");
 		String userHome = System.getProperty("user.home");
 		File userConfig = new File(userHome + "/okapi-longhorn-configuration.xml");
-		
-		if (workdirEnvVar != null) {
-			config = new Configuration(workdirEnvVar);
-		}
-		else if (userConfig.exists()) {
+		FileInputStream userConfigStream = null;
+		if(userConfig.exists()) {
 			try {
-				config = new Configuration(new FileInputStream(userConfig));
+				userConfigStream = new FileInputStream(userConfig);
 			}
 			catch (FileNotFoundException e) {
 				// This should be impossible, because we checked for the existence of the file
 				throw new RuntimeException(e);
 			}
 		}
-		else {
-			config = new Configuration();
-		}
 		
-		return config;
+		return new Configuration(workdirEnvVar, userConfigStream);
 	}
 
 	/**
@@ -128,7 +121,7 @@ public final class WorkspaceUtils {
 	 * @return The project's absolute path on the file system
 	 * 		(without a trailing path separator)
 	 */
-	public static String getProjectPath(int projId) {
+	public static String getProjectPath(String projId) {
 		
 		return getWorkingDirectory() + File.separator + projId;
 	}
@@ -137,7 +130,7 @@ public final class WorkspaceUtils {
 	 * @param projId The id of a local project
 	 * @return The project's batch configuration file
 	 */
-	public static File getBatchConfigurationFile(int projId) {
+	public static File getBatchConfigurationFile(String projId) {
 		
 		return new File(getProjectPath(projId) + File.separator + BATCH_CONF);
 	}
@@ -147,7 +140,7 @@ public final class WorkspaceUtils {
 	 * @return The absolute path of the project's input files directory on the file system
 	 * 		(without a trailing path separator)
 	 */
-	public static String getInputDirPath(int projId) {
+	public static String getInputDirPath(String projId) {
 		
 		return getProjectPath(projId) + File.separator + INPUT;
 	}
@@ -157,7 +150,7 @@ public final class WorkspaceUtils {
 	 * @param filename The name of the file to return
 	 * @return The input file with the specified file name that belongs to the project
 	 */
-	public static File getInputFile(int projId, String filename) {
+	public static File getInputFile(String projId, String filename) {
 		
 		return new File(getInputDirPath(projId) + File.separator + filename);
 	}
@@ -166,7 +159,7 @@ public final class WorkspaceUtils {
 	 * @param projId The id of a local project
 	 * @return All input files belonging to the project
 	 */
-	public static List<File> getInputFiles(int projId) {
+	public static List<File> getInputFiles(String projId) {
 		
 		return getFilesRecursivly(new File(getInputDirPath(projId)));
 	}
@@ -175,7 +168,7 @@ public final class WorkspaceUtils {
 	 * @param projId The id of a local project
 	 * @return A (string) list of the file names of the project's input files
 	 */
-	public static ArrayList<String> getInputFileNames(int projId) {
+	public static ArrayList<String> getInputFileNames(String projId) {
 		
 		Collection<File> files = getInputFiles(projId);
 		return getFileNames(files, getInputDirPath(projId) + File.separator);
@@ -186,7 +179,7 @@ public final class WorkspaceUtils {
 	 * @return The absolute path of the project's output files directory on the file system
 	 * 		(without a trailing path separator)
 	 */
-	public static String getOutputDirPath(int projId) {
+	public static String getOutputDirPath(String projId) {
 		
 		return getProjectPath(projId) + File.separator + OUTPUT;
 	}
@@ -196,7 +189,7 @@ public final class WorkspaceUtils {
 	 * @return The absolute path of the project's configuration files directory on the file system
 	 * 		(without a trailing path separator)
 	 */
-	public static String getConfigDirPath(int projId) {
+	public static String getConfigDirPath(String projId) {
 		
 		return getProjectPath(projId) + File.separator + CONFIG;
 	}
@@ -205,7 +198,7 @@ public final class WorkspaceUtils {
 	 * @param projId The id of a local project
 	 * @return The first file in the project's configuration directory with the extension ".pln" or null if none exists
 	 */
-	public static File getPipelineFile(int projId) {
+	public static File getPipelineFile(String projId) {
 		File[] pipelineFiles = getFilteredFiles(getConfigDirPath(projId), ".pln");
 		if (pipelineFiles.length == 0)
 			return null;
@@ -216,7 +209,7 @@ public final class WorkspaceUtils {
 	 * @param projId The id of a local project
 	 * @return The project's file extension-to-filter-configuration mapping file
 	 */
-	public static File getFilterMappingFile(int projId) {
+	public static File getFilterMappingFile(String projId) {
 		
 		return new File(getConfigDirPath(projId) + File.separator + EXTENSIONS_MAPPING);
 	}
@@ -226,7 +219,7 @@ public final class WorkspaceUtils {
 	 * @param filename The name of the file to return
 	 * @return The output file with the given file name that belongs to the project
 	 */
-	public static File getOutputFile(int projId, String filename) {
+	public static File getOutputFile(String projId, String filename) {
 		
 		return new File(getOutputDirPath(projId) + File.separator + filename);
 	}
@@ -235,7 +228,7 @@ public final class WorkspaceUtils {
 	 * @param projId The id of a local project
 	 * @return All output files belonging to the project
 	 */
-	public static List<File> getOutputFiles(int projId) {
+	public static List<File> getOutputFiles(String projId) {
 		
 		return getFilesRecursivly(new File(getOutputDirPath(projId)));
 	}
@@ -244,7 +237,7 @@ public final class WorkspaceUtils {
 	 * @param projId The id of a local project
 	 * @return A (string) list of the file names of the project's output files
 	 */
-	public static ArrayList<String> getOutputFileNames(int projId) {
+	public static ArrayList<String> getOutputFileNames(String projId) {
 		
 		Collection<File> files = getOutputFiles(projId);
 		return getFileNames(files, getOutputDirPath(projId) + File.separator);
@@ -267,11 +260,11 @@ public final class WorkspaceUtils {
 	}
 
 	/**
-	 * @return A list of all project ids that are currently in use (in numerical order)
+	 * @return A list of all project ids that are currently in use (in creation order)
 	 */
-	public static ArrayList<Integer> getProjectIds() {
+	public static ArrayList<String> getProjectIds() {
 
-		ArrayList<Integer> projectIds = new ArrayList<Integer>();
+		ArrayList<String> projectIds = new ArrayList<String>();
 		File[] subDirs = getSubdirectories(getWorkingDirectory());
 		
 		if(subDirs == null)
@@ -283,31 +276,11 @@ public final class WorkspaceUtils {
 		for (File dir : directories) {
 			if (PLUGINS.equals(dir.getName()))
 				continue;
-			projectIds.add(Integer.parseInt(dir.getName()));
+			projectIds.add(dir.getName());
 		}
-		
-		// Sort list, so new project folders are at the end.
-		// The OS may put 10 in between 1 and 2.
-		Collections.sort(projectIds);
 		
 		return projectIds;
 	}
-	
-	/**
-	 * @return The highest project id currently in use, increased by 1
-	 */
-	public static int determineNewProjectId() {
-		
-		ArrayList<Integer> takenProjectIds = getProjectIds();
-		
-		if (takenProjectIds.isEmpty())
-			return 1;
-		
-		// List is in numerical order, so we can simply increase the last value by 1
-		Integer highestId = takenProjectIds.get(takenProjectIds.size() - 1);
-		return highestId + 1;
-	}
-	
 	
 	/**
 	 * Filter files in a directory by their extension.
@@ -368,10 +341,20 @@ public final class WorkspaceUtils {
 	private static File[] getSubdirectories(String directory) {
 		File dir = new File(directory);
 		File[] directories = dir.listFiles(DIRECTORY_FILTER);
+		
+		if(directories!=null) {
+			Arrays.sort(directories, new Comparator<File>(){
+				public int compare(File f1, File f2)
+				{
+					return Long.valueOf(f1.lastModified()).compareTo(f2.lastModified());
+				} 
+			});			
+		}
+		
 		return directories;
 	}
 
-	public static File getOutputFilesAsArchive(int projId) throws IOException {
+	public static File getOutputFilesAsArchive(String projId) throws IOException {
 		
 		File tempZip = File.createTempFile("~okapi-3_", ".zip");
 		if (0 == zip(getOutputFiles(projId), getOutputDirPath(projId) + File.separator, tempZip))

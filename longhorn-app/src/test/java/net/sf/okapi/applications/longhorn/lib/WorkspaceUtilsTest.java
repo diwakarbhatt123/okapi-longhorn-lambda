@@ -31,7 +31,7 @@ public class WorkspaceUtilsTest {
 	@Test
 	public void loadWorkingDirFromSystemConfig() {
 		System.setProperty(LONGHORN_WORKDIR, WORKING_DIR_IN_TEMP);
-		assertEquals(WORKING_DIR_IN_TEMP, WorkspaceUtils.getWorkingDirectory());
+		assertEquals(new File(WORKING_DIR_IN_TEMP), new File(WorkspaceUtils.getWorkingDirectory()));
 	}
 
 	@Test

@@ -121,7 +121,7 @@ public class XMLStepConfigOverrideList {
 	 * @throws JAXBException If an error occurred during the unmarshalling
 	 */
 	public static Map<String, String> unmarshal(String xml) throws JAXBException {
-		if(null==xml) {
+		if(null==xml || xml.isEmpty()) {
 			return new HashMap<>();
 		}
 		try {

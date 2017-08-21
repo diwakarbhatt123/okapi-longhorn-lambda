@@ -4,7 +4,7 @@
 
   <groupId>net.sf.okapi.longhorn</groupId>
   <artifactId>okapi-longhorn</artifactId>
-  <version>0.34-SNAPSHOT</version>
+  <version>0.34</version>
   
   <packaging>pom</packaging>
 

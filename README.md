@@ -47,7 +47,7 @@ To develop with the latest nightly snapshot build, use this instead:
     <dependency>
       <groupId>net.sf.okapi.lib</groupId>
       <artifactId>okapi-lib-longhorn-api</artifactId>
-      <version>0.34-SNAPSHOT</version>
+      <version>0.35-SNAPSHOT</version>
     </dependency>
   </dependencies>
 ```

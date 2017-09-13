@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="okapi-application-longhorn:war">
+    <output-path>$PROJECT_DIR$/target</output-path>
+    <root id="archive" name="okapi-longhorn.war">
+      <element id="artifact" artifact-name="okapi-application-longhorn:war exploded" />
+    </root>
+  </artifact>
+</component>

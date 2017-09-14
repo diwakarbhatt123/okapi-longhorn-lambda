@@ -1,9 +1,11 @@
 package net.sf.okapi.applications.longhorn.lambdarequest;
 
+import java.io.Serializable;
+
 /**
  * Created by diwakar on 30/08/17.
  */
-public class ConversionRequest {
+public class ConversionRequest implements Serializable {
 
     private ConversionStep conversionStep;
     private String batchConfigS3Url;

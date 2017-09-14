@@ -1,9 +1,6 @@
 package net.sf.okapi.applications.longhorn;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.auth.*;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.s3.AmazonS3;
@@ -11,6 +8,7 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.S3Object;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.sf.okapi.applications.longhorn.lambdarequest.ConversionRequest;
+import net.sf.okapi.applications.longhorn.lambdarequest.ConversionStep;
 import net.sf.okapi.applications.longhorn.lib.ProjectUtils;
 import net.sf.okapi.applications.longhorn.lib.WorkspaceUtils;
 
@@ -21,15 +19,15 @@ import java.util.Properties;
 /**
  * Created by diwakar on 29/08/17.
  */
-public class Lambda implements RequestHandler<String, String> {
+public class Lambda implements RequestHandler<ConversionRequest, String> {
 
-    private static final String BUCKET_NAME = "cw-okapi-longhorn";
+    private static final String BUCKET_NAME = "dhinchak-puja";
 
     @Override
-    public String handleRequest(String input, Context context) {
+    public String handleRequest(ConversionRequest conversionRequest, Context context) {
         try {
+            System.out.println("The Request Recieved is "+ conversionRequest.toString());
             AmazonS3 amazonS3 = instantiateAmazonS3();
-            ConversionRequest conversionRequest = new ObjectMapper().readValue(input, ConversionRequest.class);
             String response = null;
             switch (conversionRequest.getConversionStep()) {
                 case EXTRACTION_STEP:
@@ -45,21 +43,24 @@ public class Lambda implements RequestHandler<String, String> {
             e.printStackTrace();
         }
 
-        return ProjectUtils.createNewProject();
+        return null;
     }
 
     public static void main(String[] args) {
         Lambda lambda = new Lambda();
-        String input = "{\"conversionStep\":\"EXTRACTION_STEP\",\"batchConfigS3Url\":null,\"sourceFileS3Url\":null}";
-        lambda.handleRequest(input, null);
+        ConversionRequest conversionRequest = new ConversionRequest();
+        conversionRequest.setConversionStep(ConversionStep.EXTRACTION_STEP);
+        conversionRequest.setBatchConfigS3Url(null);
+        conversionRequest.setSourceFileS3Url(null);
+        System.out.println(lambda.handleRequest(conversionRequest, null));
     }
 
     private AmazonS3 instantiateAmazonS3() throws IOException {
         Properties properties = new Properties();
         properties.load(getClass().getClassLoader().getResourceAsStream("awsConfig.properties"));
         AWSCredentials awsCredentials = new BasicAWSCredentials(properties.getProperty("awsAccessKey"), properties.getProperty("awsSecretKey"));
-        AWSCredentialsProvider awsCredentialsProvider = new AWSStaticCredentialsProvider(awsCredentials);
-        return AmazonS3ClientBuilder.standard().withCredentials(awsCredentialsProvider).build();
+        AWSCredentialsProvider awsCredentialsProvider = new AWSStaticCredentialsProvider(new AnonymousAWSCredentials());
+        return AmazonS3ClientBuilder.standard().withCredentials(awsCredentialsProvider).withRegion("us-east-1").build();
     }
 
     private String executeMergingStep(String sourceFileS3Url, String batchConfigS3FileUrl, AmazonS3 amazonS3) throws IOException {
